@@ -1,6 +1,11 @@
 # syntax=docker/dockerfile:1
 # Multi-stage build for ColorTimer PWA
 
+# Build arguments for metadata
+ARG BUILDTIME
+ARG VERSION
+ARG REVISION
+
 # Build stage
 FROM node:18-alpine AS builder
 
@@ -56,10 +61,12 @@ EXPOSE 8080
 # Add labels for metadata
 LABEL org.opencontainers.image.title="ColorTimer PWA" \
     org.opencontainers.image.description="A colorful timer PWA with customizable time phases" \
-    org.opencontainers.image.version="1.0.0" \
+    org.opencontainers.image.version="${VERSION:-1.0.0}" \
     org.opencontainers.image.vendor="ColorTimer" \
-    org.opencontainers.image.url="https://github.com/your-username/color-timer" \
-    org.opencontainers.image.source="https://github.com/your-username/color-timer"
+    org.opencontainers.image.url="https://github.com/totosan/ColorTimer" \
+    org.opencontainers.image.source="https://github.com/totosan/ColorTimer" \
+    org.opencontainers.image.revision="${REVISION}" \
+    org.opencontainers.image.created="${BUILDTIME}"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

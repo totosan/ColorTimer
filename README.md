@@ -319,6 +319,67 @@ ColorTimer/
 - `npm run format` - Prettier code formatting
 - `npm run audit` - Lighthouse PWA audit
 
+### Docker Development
+```bash
+# Build Docker image
+docker build -t color-timer .
+
+# Run in Docker container
+docker run -p 8080:8080 color-timer
+
+# Access at http://localhost:8080
+```
+
+## 🐳 Docker Deployment
+
+The application is containerized and automatically built with GitHub Actions.
+
+### Using Pre-built Images
+```bash
+# Pull and run the latest image
+docker run -p 8080:8080 ghcr.io/totosan/colortimer:latest
+
+# Pull a specific version
+docker run -p 8080:8080 ghcr.io/totosan/colortimer:v1.0.0
+```
+
+### Manual Docker Build
+```bash
+# Build locally
+docker build -t color-timer .
+
+# Run with health checks
+docker run -p 8080:8080 --health-cmd="curl -f http://localhost:8080/health" color-timer
+```
+
+## 🚀 CI/CD Pipeline
+
+This project uses GitHub Actions for automated building and deployment:
+
+### Workflows
+- **Docker Build & Deploy** (`docker-build-deploy.yml`)
+  - Builds multi-platform Docker images (AMD64, ARM64)
+  - Pushes to GitHub Container Registry
+  - Security scanning with Trivy
+  - Automatic staging/production deployment
+
+- **Docker Test** (`docker-test.yml`)
+  - Tests Docker builds on pull requests
+  - Runs basic functionality tests
+  - Security vulnerability scanning
+
+### Deployment Strategy
+- **Staging**: Automatic deployment on push to `main`/`master`
+- **Production**: Automatic deployment on version tags (e.g., `v1.0.0`)
+
+### Image Tags
+- `latest` - Latest build from main branch
+- `v1.0.0` - Semantic version releases
+- `main` - Latest from main branch
+- `pr-123` - Pull request builds
+
+For detailed Docker and CI/CD documentation, see [`.github/DOCKER_CI_CD.md`](.github/DOCKER_CI_CD.md).
+
 ### Contributing
 1. Fork the repository
 2. Create a feature branch
