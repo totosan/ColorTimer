@@ -10,8 +10,8 @@ if (fs.existsSync(distDir)) {
 }
 fs.mkdirSync(distDir, { recursive: true });
 
-// Copy public directory to dist
-function copyDir(src, dest) {
+// Copy public directory to dist (excluding src folder)
+function copyDir(src, dest, excludeDirs = []) {
     if (!fs.existsSync(dest)) {
         fs.mkdirSync(dest, { recursive: true });
     }
@@ -19,31 +19,35 @@ function copyDir(src, dest) {
     const files = fs.readdirSync(src);
 
     for (const file of files) {
+        if (excludeDirs.includes(file)) {
+            continue; // Skip excluded directories
+        }
+
         const srcPath = path.join(src, file);
         const destPath = path.join(dest, file);
 
         if (fs.statSync(srcPath).isDirectory()) {
-            copyDir(srcPath, destPath);
+            copyDir(srcPath, destPath, excludeDirs);
         } else {
             fs.copyFileSync(srcPath, destPath);
         }
     }
 }
 
-// Copy source files to dist with updated paths
+// Copy source files to dist with updated paths (excluding src folder)
 const publicDir = path.join(__dirname, '..', 'public');
-copyDir(publicDir, distDir);
+copyDir(publicDir, distDir, ['src']); // Exclude src folder from public copy
 
 // Update HTML file paths for production
 const htmlPath = path.join(distDir, 'index.html');
 let htmlContent = fs.readFileSync(htmlPath, 'utf8');
 
 // Update CSS and JS paths to be relative for production
-htmlContent = htmlContent.replace('../src/css/styles.css', 'assets/css/styles.css');
-htmlContent = htmlContent.replace('../src/js/timer.js', 'assets/js/timer.js');
-htmlContent = htmlContent.replace('../src/js/events.js', 'assets/js/events.js');
-htmlContent = htmlContent.replace('../src/js/canvas.js', 'assets/js/canvas.js');
-htmlContent = htmlContent.replace('../src/js/app.js', 'assets/js/app.js');
+htmlContent = htmlContent.replace(/src\/css\/styles\.css(\?v=\d+)?/g, 'assets/css/styles.css');
+htmlContent = htmlContent.replace(/src\/js\/timer\.js(\?v=\d+)?/g, 'assets/js/timer.js');
+htmlContent = htmlContent.replace(/src\/js\/events\.js(\?v=\d+)?/g, 'assets/js/events.js');
+htmlContent = htmlContent.replace(/src\/js\/canvas\.js(\?v=\d+)?/g, 'assets/js/canvas.js');
+htmlContent = htmlContent.replace(/src\/js\/app\.js(\?v=\d+)?/g, 'assets/js/app.js');
 
 fs.writeFileSync(htmlPath, htmlContent);
 
