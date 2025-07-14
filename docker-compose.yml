@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  color-timer:
+    build: .
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    container_name: color-timer-app
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - NODE_ENV=production
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+
+  # Development with hot reload (optional)
+  color-timer-dev:
+    build:
+      context: .
+      target: builder
+    ports:
+      - "3003:3003"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+    profiles:
+      - dev

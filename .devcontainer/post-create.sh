@@ -17,6 +17,34 @@ sudo apt-get install -y imagemagick
 # Install SVG tools
 sudo apt-get install -y librsvg2-bin
 
+# Verify Docker-in-Docker setup
+echo "🐳 Verifying Docker-in-Docker setup..."
+if command -v docker &> /dev/null; then
+    echo "✅ Docker is available"
+    docker --version
+    
+    # Test Docker functionality
+    if docker ps &> /dev/null; then
+        echo "✅ Docker daemon is running"
+    else
+        echo "⚠️  Docker daemon might not be running yet"
+    fi
+    
+    # Check if Docker Compose is available
+    if command -v docker-compose &> /dev/null; then
+        echo "✅ Docker Compose is available"
+        docker-compose --version
+    fi
+    
+    # Check if Docker Buildx is available
+    if docker buildx version &> /dev/null; then
+        echo "✅ Docker Buildx is available"
+        docker buildx version
+    fi
+else
+    echo "❌ Docker is not available"
+fi
+
 # Note: Using npx for tools to avoid permission issues
 echo "🔧 Node.js development tools will be installed via npx as needed..."
 
@@ -39,7 +67,13 @@ else
     "build": "node create-icons.js",
     "lint": "npx eslint js/**/*.js",
     "format": "npx prettier --write '**/*.{js,html,css,json}'",
-    "audit": "npx lighthouse http://localhost:3000 --output html --output-path ./lighthouse-report.html"
+    "audit": "npx lighthouse http://localhost:3000 --output html --output-path ./lighthouse-report.html",
+    "docker:build": "docker build -t colortimer .",
+    "docker:run": "docker run -p 8080:80 colortimer",
+    "docker:build-and-run": "npm run docker:build && npm run docker:run",
+    "docker:compose:up": "docker-compose up",
+    "docker:compose:down": "docker-compose down",
+    "docker:compose:build": "docker-compose build"
   },
   "keywords": ["pwa", "timer", "productivity", "javascript"],
   "author": "Developer",
@@ -140,6 +174,7 @@ fi
 
 # Make shell scripts executable
 chmod +x *.sh
+chmod +x .devcontainer/*.sh
 
 # Create a development guide
 echo "📚 Creating development guide..."
@@ -165,12 +200,50 @@ npm run serve    # Python server on port 8000
 ./start-server.sh   # Original development script
 \`\`\`
 
+### Option 4: Using Docker helper
+\`\`\`bash
+.devcontainer/docker-helper.sh   # Interactive Docker management
+\`\`\`
+
 ## Development Tools
 
 - **ESLint**: Code linting - \`npm run lint\`
 - **Prettier**: Code formatting - \`npm run format\`
 - **Lighthouse**: PWA audit - \`npm run audit\`
 - **Icon Generation**: \`npm run build\` or \`node create-icons.js\`
+
+## Docker Commands
+
+### Building and Running
+\`\`\`bash
+npm run docker:build           # Build Docker image
+npm run docker:run             # Run Docker container (port 8080)
+npm run docker:build-and-run   # Build and run in one command
+
+# Or use Docker directly
+docker build -t colortimer .
+docker run -p 8080:80 colortimer
+\`\`\`
+
+### Docker Compose
+\`\`\`bash
+npm run docker:compose:up      # Start with docker-compose
+npm run docker:compose:down    # Stop docker-compose
+npm run docker:compose:build   # Build with docker-compose
+
+# Or use docker-compose directly
+docker-compose up
+docker-compose down
+docker-compose build
+\`\`\`
+
+### Useful Docker Commands
+\`\`\`bash
+docker ps                      # List running containers
+docker images                  # List Docker images
+docker logs <container-id>     # View container logs
+docker exec -it <container-id> /bin/sh  # Enter running container
+\`\`\`
 
 ## PWA Testing
 
@@ -222,6 +295,14 @@ echo "  • npm run start     - Start development server"
 echo "  • npm run dev       - Start with auto-reload"
 echo "  • ./start-dev.sh    - Interactive server selection"
 echo "  • npm run audit     - Run PWA audit"
+echo "  • npm run docker:build - Build Docker image"
+echo "  • npm run docker:run   - Run Docker container"
+echo "  • .devcontainer/docker-helper.sh - Interactive Docker helper"
+echo ""
+echo "🐳 Docker commands:"
+echo "  • docker --version     - Check Docker version"
+echo "  • docker ps            - List running containers"
+echo "  • docker-compose up    - Start with docker-compose"
 echo ""
 echo "📖 Check DEVELOPMENT.md for detailed guide"
 echo "🎨 Your Color Timer PWA development environment is ready!"

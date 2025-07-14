@@ -5,6 +5,14 @@
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": true,
+      "azureDnsAutoDetection": true,
+      "installDockerBuildx": true,
+      "installDockerComposeSwitch": true,
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    },
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
       "configureZshAsDefaultShell": true,
@@ -35,6 +43,10 @@
         // PWA Development
         "ms-vscode.vscode-json",
         "ms-vscode.references-view",
+        
+        // Docker
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers",
         
         // Code Quality
         "ms-vscode.vscode-eslint",
@@ -112,6 +124,7 @@
   "remoteUser": "vscode",
   
   "mounts": [
-    "source=colortimer-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+    "source=colortimer-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
   ]
 }
