@@ -1,0 +1,117 @@
+{
+  "name": "Color Timer PWA Development",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true,
+      "username": "vscode",
+      "userUid": "automatic",
+      "userGid": "automatic"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Web Development
+        "ms-vscode.vscode-json",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.vscode-typescript-next",
+        
+        // HTML/CSS/JS
+        "ms-vscode.vscode-css-peek",
+        "zignd.html-css-class-completion",
+        "formulahendry.auto-close-tag",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.live-server",
+        
+        // PWA Development
+        "ms-vscode.vscode-json",
+        "ms-vscode.references-view",
+        
+        // Code Quality
+        "ms-vscode.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "streetsidesoftware.code-spell-checker",
+        
+        // Git
+        "mhutchie.git-graph",
+        "eamodio.gitlens",
+        
+        // Productivity
+        "ms-vscode.vscode-todo-highlight",
+        "gruntfuggly.todo-tree",
+        "usernamehw.errorlens",
+        "ms-vscode.hexeditor",
+        
+        // Icons and Themes
+        "pkief.material-icon-theme",
+        "github.github-vscode-theme"
+      ],
+      
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/bin/zsh"
+          }
+        },
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "files.eol": "\n",
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "html.format.indentInnerHtml": true,
+        "css.validate": true,
+        "javascript.validate.enable": true,
+        "emmet.includeLanguages": {
+          "javascript": "javascriptreact"
+        }
+      }
+    }
+  },
+
+  "forwardPorts": [3000, 8000, 8080, 5000, 5500],
+  "portsAttributes": {
+    "3000": {
+      "label": "Development Server",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "Python HTTP Server",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Alternative Web Server",
+      "onAutoForward": "notify"
+    },
+    "5000": {
+      "label": "Node.js Server",
+      "onAutoForward": "notify"
+    },
+    "5500": {
+      "label": "Live Server",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "echo '🎨 Color Timer PWA Development Environment Ready!'",
+
+  "remoteUser": "vscode",
+  
+  "mounts": [
+    "source=colortimer-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ]
+}

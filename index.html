@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Timer</title>
+    <meta name="description" content="A colorful timer with customizable time phases">
+    <meta name="theme-color" content="#ff4444">
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="icons/icon-192x192.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app" class="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>Color Timer</h1>
+            <button id="settingsBtn" class="icon-btn" title="Settings">⚙️</button>
+        </header>
+
+        <!-- Main Timer Display -->
+        <main class="main-content">
+            <div class="timer-container">
+                <canvas id="timerCanvas" width="300" height="300"></canvas>
+                <div class="timer-display">
+                    <div id="timeDisplay" class="time-text">00:00</div>
+                    <div id="phaseDisplay" class="phase-text">Ready</div>
+                </div>
+            </div>
+
+            <!-- Timer Controls -->
+            <div class="controls">
+                <button id="startBtn" class="control-btn primary">Start</button>
+                <button id="pauseBtn" class="control-btn" disabled>Pause</button>
+                <button id="stopBtn" class="control-btn" disabled>Stop</button>
+                <button id="resetBtn" class="control-btn">Reset</button>
+            </div>
+
+            <!-- Quick Timer Presets -->
+            <div class="presets">
+                <h3>Quick Timers</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-minutes="15" data-seconds="0">15min</button>
+                    <button class="preset-btn" data-minutes="30" data-seconds="0">30min</button>
+                    <button class="preset-btn" data-minutes="45" data-seconds="0">45min</button>
+                    <button class="preset-btn" data-minutes="60" data-seconds="0">60min</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="settings-panel hidden">
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h2>Timer Settings</h2>
+                    <button id="closeSettings" class="close-btn">×</button>
+                </div>
+
+                <!-- Custom Time Input -->
+                <div class="setting-group">
+                    <h3>Custom Timer</h3>
+                    <div class="time-inputs">
+                        <div class="input-group">
+                            <label for="minutesInput">Minutes</label>
+                            <input type="number" id="minutesInput" min="0" max="60" value="5">
+                        </div>
+                        <div class="input-group">
+                            <label for="secondsInput">Seconds</label>
+                            <input type="number" id="secondsInput" min="0" max="59" value="0">
+                        </div>
+                    </div>
+                    <button id="setCustomTime" class="btn secondary">Set Custom Time</button>
+                </div>
+
+                <!-- Events Configuration -->
+                <div class="setting-group">
+                    <h3>Timer Events</h3>
+                    <div id="eventsList" class="events-list">
+                        <!-- Events will be populated by JavaScript -->
+                    </div>
+                    <button id="addEventBtn" class="btn secondary">Add Event</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Editor Modal -->
+        <div id="eventModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Add Event</h3>
+                    <button id="closeModal" class="close-btn">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label for="eventName">Event Name</label>
+                        <input type="text" id="eventName" placeholder="e.g., Focus Time">
+                    </div>
+                    <div class="input-group">
+                        <label for="eventStart">Start Time <span id="startTimeUnit">(seconds)</span></label>
+                        <input type="number" id="eventStart" min="0" value="0" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label for="eventEnd">End Time <span id="endTimeUnit">(seconds)</span></label>
+                        <input type="number" id="eventEnd" min="0.1" value="60" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label for="eventColor">Color</label>
+                        <div class="color-picker">
+                            <input type="color" id="eventColor" value="#ff4444">
+                            <div class="color-presets">
+                                <button class="color-preset" data-color="#ff4444" style="background: #ff4444"></button>
+                                <button class="color-preset" data-color="#ff8800" style="background: #ff8800"></button>
+                                <button class="color-preset" data-color="#ffdd00" style="background: #ffdd00"></button>
+                                <button class="color-preset" data-color="#88ff00" style="background: #88ff00"></button>
+                                <button class="color-preset" data-color="#00ff88" style="background: #00ff88"></button>
+                                <button class="color-preset" data-color="#0088ff" style="background: #0088ff"></button>
+                                <button class="color-preset" data-color="#8800ff" style="background: #8800ff"></button>
+                                <button class="color-preset" data-color="#ff0088" style="background: #ff0088"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveEvent" class="btn primary">Save Event</button>
+                    <button id="cancelEvent" class="btn secondary">Cancel</button>
+                    <button id="deleteEvent" class="btn danger hidden">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/timer.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- PWA Installation -->
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => console.log('SW registered: ', registration))
+                    .catch(registrationError => console.log('SW registration failed: ', registrationError));
+            });
+        }
+    </script>
+</body>
+</html>

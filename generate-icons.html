@@ -1,0 +1,136 @@
+<!-- Simple Icon Generator - Open this file in a browser and it will download all required icons -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color Timer Icon Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+        canvas { border: 2px solid #ddd; margin: 10px; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Color Timer Icon Generator</h1>
+    <p>Click the button below to generate all PWA icons:</p>
+    <button onclick="generateAllIcons()">Generate All Icons</button>
+    <div id="status"></div>
+    <canvas id="canvas" width="512" height="512"></canvas>
+
+    <script>
+        function createIcon(size) {
+            const canvas = document.getElementById('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            // Calculate proportions
+            const margin = Math.max(4, size * 0.08);
+            const radius = (size - margin * 2) / 2;
+            const centerX = size / 2;
+            const centerY = size / 2;
+            
+            // Draw background circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            
+            // Gradient background
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            gradient.addColorStop(0, '#ff6666');
+            gradient.addColorStop(1, '#ff4444');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Border
+            ctx.strokeStyle = '#cc3333';
+            ctx.lineWidth = Math.max(1, size * 0.01);
+            ctx.stroke();
+            
+            // Clock face details
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = Math.max(1, size * 0.005);
+            
+            // Draw hour marks
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 30) * Math.PI / 180;
+                const innerR = radius * 0.85;
+                const outerR = radius * 0.95;
+                
+                ctx.beginPath();
+                ctx.moveTo(
+                    centerX + Math.sin(angle) * innerR,
+                    centerY - Math.cos(angle) * innerR
+                );
+                ctx.lineTo(
+                    centerX + Math.sin(angle) * outerR,
+                    centerY - Math.cos(angle) * outerR
+                );
+                ctx.stroke();
+            }
+            
+            // Clock hands
+            ctx.strokeStyle = 'white';
+            ctx.lineCap = 'round';
+            
+            // Hour hand (pointing to 2 o'clock)
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            const hourAngle = (2 * 30) * Math.PI / 180; // 2 o'clock
+            ctx.lineTo(
+                centerX + Math.sin(hourAngle) * radius * 0.4,
+                centerY - Math.cos(hourAngle) * radius * 0.4
+            );
+            ctx.lineWidth = Math.max(2, size * 0.025);
+            ctx.stroke();
+            
+            // Minute hand (pointing to 12 o'clock)
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX, centerY - radius * 0.65);
+            ctx.lineWidth = Math.max(1, size * 0.015);
+            ctx.stroke();
+            
+            // Center dot
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, Math.max(2, size * 0.025), 0, 2 * Math.PI);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = Math.max(1, size * 0.005);
+            ctx.stroke();
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        function downloadIcon(dataUrl, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function generateAllIcons() {
+            const sizes = [32, 72, 96, 128, 144, 152, 192, 384, 512];
+            const status = document.getElementById('status');
+            
+            status.innerHTML = 'Generating icons...';
+            
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    const dataUrl = createIcon(size);
+                    downloadIcon(dataUrl, `icon-${size}x${size}.png`);
+                    status.innerHTML = `Generated ${index + 1}/${sizes.length} icons`;
+                    
+                    if (index === sizes.length - 1) {
+                        status.innerHTML = '✅ All icons generated! Move them to the icons/ folder.';
+                    }
+                }, index * 500); // Delay to prevent browser blocking downloads
+            });
+        }
+    </script>
+</body>
+</html>

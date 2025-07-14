@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Relative Time Units</title>
+</head>
+<body>
+    <h1>Test Relative Time Units</h1>
+
+    <div>
+        <h2>Test Results:</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Copy the relevant functions for testing
+        function getOptimalTimeUnit(totalSeconds) {
+            if (totalSeconds <= 120) { // 2 minutes or less
+                return { unit: 'seconds', divisor: 1, label: 'seconds' };
+            } else if (totalSeconds <= 7200) { // 2 hours or less
+                return { unit: 'minutes', divisor: 60, label: 'minutes' };
+            } else {
+                return { unit: 'hours', divisor: 3600, label: 'hours' };
+            }
+        }
+
+        function convertSecondsToRelativeUnit(seconds, unit) {
+            const { divisor, unit: unitType } = unit;
+            const value = seconds / divisor;
+
+            if (unitType === 'seconds') {
+                return Math.round(value);
+            } else {
+                return Math.round(value * 10) / 10;
+            }
+        }
+
+        // Test cases
+        const tests = [
+            { duration: 60, name: '1 minute' },
+            { duration: 120, name: '2 minutes (boundary)' },
+            { duration: 300, name: '5 minutes' },
+            { duration: 1800, name: '30 minutes' },
+            { duration: 7200, name: '2 hours (boundary)' },
+            { duration: 10800, name: '3 hours' }
+        ];
+
+        let results = '<ul>';
+        tests.forEach(test => {
+            const unit = getOptimalTimeUnit(test.duration);
+            const halfDuration = test.duration / 2;
+            const halfInUnit = convertSecondsToRelativeUnit(halfDuration, unit);
+
+            results += `<li><strong>${test.name} (${test.duration}s)</strong>: Unit = ${unit.unit} (${unit.label}), Half duration = ${halfInUnit} ${unit.label}</li>`;
+        });
+        results += '</ul>';
+
+        document.getElementById('results').innerHTML = results;
+    </script>
+</body>
+</html>

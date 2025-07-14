@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Relative Time Units</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-case { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .result { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Test Relative Time Units</h1>
+    <div id="tests"></div>
+
+    <script>
+        // Helper functions from app.js
+        function getOptimalTimeUnit(totalSeconds) {
+            if (totalSeconds <= 120) {
+                return { unit: 'seconds', divisor: 1, label: 'seconds' };
+            } else if (totalSeconds <= 7200) {
+                return { unit: 'minutes', divisor: 60, label: 'minutes' };
+            } else {
+                return { unit: 'hours', divisor: 3600, label: 'hours' };
+            }
+        }
+
+        function convertSecondsToRelativeUnit(seconds, unit) {
+            const { divisor, unit: unitType } = unit;
+            const value = seconds / divisor;
+
+            if (unitType === 'seconds') {
+                return Math.round(value);
+            } else {
+                return Math.round(value * 10) / 10;
+            }
+        }
+
+        function convertRelativeUnitToSeconds(value, unit) {
+            const { divisor } = unit;
+            return Math.round(value * divisor);
+        }
+
+        // Test cases
+        const testCases = [
+            {
+                name: "1 minute timer",
+                totalSeconds: 60,
+                events: [
+                    { name: "Mid event", startSeconds: 30, endSeconds: 30 }
+                ]
+            },
+            {
+                name: "30 minute timer",
+                totalSeconds: 1800,
+                events: [
+                    { name: "Mid event", startSeconds: 900, endSeconds: 900 }
+                ]
+            },
+            {
+                name: "1 hour timer",
+                totalSeconds: 3600,
+                events: [
+                    { name: "Quarter event", startSeconds: 900, endSeconds: 900 }
+                ]
+            }
+        ];
+
+        function runTests() {
+            const testsDiv = document.getElementById('tests');
+
+            testCases.forEach(testCase => {
+                const testDiv = document.createElement('div');
+                testDiv.className = 'test-case';
+
+                const unit = getOptimalTimeUnit(testCase.totalSeconds);
+                const totalInUnit = convertSecondsToRelativeUnit(testCase.totalSeconds, unit);
+
+                let html = `<h3>${testCase.name}</h3>`;
+                html += `<p>Total duration: ${testCase.totalSeconds}s = ${totalInUnit} ${unit.label}</p>`;
+                html += `<p>Unit used: <span class="result">${unit.label}</span></p>`;
+
+                testCase.events.forEach(event => {
+                    const startInUnit = convertSecondsToRelativeUnit(event.startSeconds, unit);
+                    const endInUnit = convertSecondsToRelativeUnit(event.endSeconds, unit);
+
+                    // Test round-trip conversion
+                    const backToSeconds = convertRelativeUnitToSeconds(endInUnit, unit);
+
+                    html += `<p>${event.name}:</p>`;
+                    html += `<ul>`;
+                    html += `<li>Start: ${event.startSeconds}s → <span class="result">${startInUnit} ${unit.label}</span></li>`;
+                    html += `<li>Duration: ${event.endSeconds}s → <span class="result">${endInUnit} ${unit.label}</span></li>`;
+                    html += `<li>Round-trip test: ${endInUnit} ${unit.label} → ${backToSeconds}s</li>`;
+                    html += `</ul>`;
+                });
+
+                testDiv.innerHTML = html;
+                testsDiv.appendChild(testDiv);
+            });
+        }
+
+        runTests();
+    </script>
+</body>
+</html>

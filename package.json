@@ -1,0 +1,22 @@
+{
+  "name": "color-timer",
+  "version": "1.0.0",
+  "description": "A colorful timer PWA with customizable time phases",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 3003 -c-1",
+    "dev": "npx live-server --port=3003 --no-browser",
+    "serve": "python3 -m http.server 8000",
+    "build": "node create-icons.js",
+    "lint": "npx eslint js/**/*.js",
+    "format": "npx prettier --write '**/*.{js,html,css,json}'",
+    "audit": "npx lighthouse http://localhost:3003 --output html --output-path ./lighthouse-report.html"
+  },
+  "keywords": ["pwa", "timer", "productivity", "javascript"],
+  "author": "Developer",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  }
+}
