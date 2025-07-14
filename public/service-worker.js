@@ -1,15 +1,15 @@
-const CACHE_NAME = 'color-timer-v1.0.2';
+const CACHE_NAME = 'color-timer-v1.0.3';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/css/styles.css',
-  '/js/app.js',
-  '/js/timer.js',
-  '/js/events.js',
-  '/js/canvas.js',
+  '/src/css/styles.css',
+  '/src/js/app.js',
+  '/src/js/timer.js',
+  '/src/js/events.js',
+  '/src/js/canvas.js',
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/assets/icons/icon-192x192.png',
+  '/assets/icons/icon-512x512.png'
 ];
 
 // Install event - cache resources

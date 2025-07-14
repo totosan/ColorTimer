@@ -2,29 +2,42 @@
 
 ## Quick Start
 
-### Option 1: Using npm scripts
+### Development Server
 ```bash
-npm run start    # HTTP server on port 3000
-npm run dev      # Live server with auto-reload on port 3000
-npm run serve    # Python server on port 8000
+npm run dev      # Live server with auto-reload on port 3003 (recommended)
+npm run start    # HTTP server on port 3003
+npm run serve    # Python server on port 8000 (legacy)
 ```
 
-### Option 2: Using development script
+### Build Process
+```bash
+npm run build        # Full production build (icons + build)
+npm run build:icons  # Generate icons only
+```
+
+### Using Development Script
 ```bash
 ./start-dev.sh   # Interactive server selection
 ```
 
-### Option 3: Using original script
-```bash
-./start-server.sh   # Original development script
-```
+## Project Structure
+
+The project follows modern web development practices:
+
+- **src/**: Source code (development files)
+- **public/**: Static assets and main files
+- **dist/**: Production build output
+- **scripts/**: Build and utility scripts
+- **tests/**: Test files
+- **docs/**: Documentation
 
 ## Development Tools
 
-- **ESLint**: Code linting - `npm run lint` (uses npx)
-- **Prettier**: Code formatting - `npm run format` (uses npx)
-- **Lighthouse**: PWA audit - `npm run audit` (uses npx)
-- **Icon Generation**: `npm run build` or `node create-icons.js`
+- **ESLint**: Code linting - `npm run lint`
+- **Prettier**: Code formatting - `npm run format`
+- **Lighthouse**: PWA audit - `npm run audit`
+- **Icon Generation**: `npm run build:icons`
+- **Production Build**: `npm run build`
 
 **Note**: Development tools use `npx` to avoid global installation and permission issues.
 

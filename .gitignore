@@ -16,26 +16,8 @@ pids
 coverage/
 *.lcov
 
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# Bower dependency directory (https://bower.io/)
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
 # Dependency directories
 jspm_packages/
-
-# TypeScript cache
-*.tsbuildinfo
 
 # Optional npm cache directory
 .npm
@@ -43,40 +25,28 @@ jspm_packages/
 # Optional eslint cache
 .eslintcache
 
-# Optional REPL history
-.node_repl_history
-
 # Output of 'npm pack'
 *.tgz
 
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
+# Environment variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# parcel-bundler cache (https://parceljs.org/)
+# Cache and build outputs
 .cache
-.parcel-cache
-
-# Next.js build output
-.next
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
 .cache/
-public
+.parcel-cache
+dist
+build/
+out/
 
-# Storybook build outputs
-.out
-.storybook-out
+# ColorTimer specific
+# Note: public/ contains our static assets
+# Ignore development-synced files in public/src/
+public/src/
 
 # Temporary folders
 tmp/
@@ -101,24 +71,6 @@ logs
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Build outputs
-build/
-dist/
-out/
-
-# Development files
-*.local
-*.dev
-
-# PWA and service worker generated files
-sw.js.map
-workbox-*.js
-precache-manifest.*.js
-
-# Testing
-/coverage
-/.nyc_output
 
 # Deployment
 .vercel

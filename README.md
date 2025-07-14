@@ -28,22 +28,58 @@ A beautiful, customizable timer application with color-coded time phases. Perfec
 - 🔔 **Notifications**: Browser notifications when timer completes
 - 📳 **Mobile Vibration**: Haptic feedback on supported devices
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Safari, Edge)
-- No additional software required!
+- Node.js (for development and building)
 
-### Installation
+### Quick Start
 
-1. **Clone or Download**
-   ```bash
-   git clone <repository-url>
-   cd ColorTimer
-   ```
+**Development:**
+```bash
+# Install dependencies
+npm install
 
-2. **Serve the Files**
-   Since this is a PWA, you need to serve it over HTTPS or localhost. Choose one method:
+# Start development server
+npm run dev          # Live server with auto-reload
+# or
+npm start            # HTTP server
+
+# Open http://localhost:3003
+```
+
+**Production Build:**
+```bash
+# Create production build
+npm run build
+
+# Serve production build
+npx http-server dist -p 3003
+```
+
+### Project Structure
+
+```
+ColorTimer/
+├── src/                    # Source code
+│   ├── css/               # Stylesheets
+│   └── js/                # JavaScript modules
+├── public/                # Static assets and main files
+│   ├── assets/           # Static assets (icons, etc.)
+│   ├── index.html        # Main HTML file
+│   └── manifest.json     # PWA manifest
+├── scripts/              # Build and utility scripts
+├── tests/                # Test files
+├── docs/                 # Documentation
+└── dist/                 # Build output (generated)
+```
+
+See [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) for detailed information.
+
+### Legacy Installation (Direct File Serving)
+
+If you prefer not to use the build process, you can still serve files directly:
 
    **Option A: Using Python (if you have Python installed)**
    ```bash
