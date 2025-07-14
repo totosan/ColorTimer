@@ -8,6 +8,9 @@ class ColorTimerApp {
         // UI Elements
         this.timeDisplay = document.getElementById('timeDisplay');
         this.phaseDisplay = document.getElementById('phaseDisplay');
+        this.currentEventDisplay = document.getElementById('currentEventDisplay');
+        this.eventNameText = document.getElementById('eventNameText');
+        this.eventColorIndicator = document.getElementById('eventColorIndicator');
 
         // Control buttons
         this.startBtn = document.getElementById('startBtn');
@@ -283,7 +286,26 @@ class ColorTimerApp {
 
         const elapsed = this.timer.totalTime - this.timer.remainingTime;
         const currentEvent = this.eventManager.getCurrentEvent(elapsed, this.timer.totalTime);
-        this.phaseDisplay.textContent = currentEvent ? currentEvent.name : 'Ready';
+        const eventName = currentEvent ? currentEvent.name : 'Ready';
+
+        this.phaseDisplay.textContent = eventName;
+
+        // Update header event display
+        this.eventNameText.textContent = eventName;
+
+        // Update color indicator
+        if (currentEvent && currentEvent.color) {
+            this.eventColorIndicator.style.backgroundColor = currentEvent.color;
+        } else {
+            this.eventColorIndicator.style.backgroundColor = '#718096';
+        }
+
+        // Add active class when timer is running
+        if (this.timer.isRunning && this.timer.remainingTime > 0) {
+            this.currentEventDisplay.classList.add('active');
+        } else {
+            this.currentEventDisplay.classList.remove('active');
+        }
 
         // Update page title
         if (this.timer.isRunning && this.timer.remainingTime > 0) {
