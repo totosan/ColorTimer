@@ -49,6 +49,11 @@ jobs:
           # set latest tag for main/master branch
           type=raw,value=latest,enable={{is_default_branch}}
 
+    - name: Set first image tag
+      id: first_tag
+      run: |
+        echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | head -n1)" >> "$GITHUB_OUTPUT"
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -67,7 +72,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ steps.meta.outputs.tags }}
+        image-ref: ${{ steps.first_tag.outputs.tag }}
         format: 'sarif'
         output: 'trivy-results.sarif'
 
