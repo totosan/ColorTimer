@@ -1,13 +1,28 @@
 # Color Timer PWA
 
-A beautiful, customizable timer application with color-coded time phases. Perfect for productivity techniques like Pomodoro, time blocking, or any activity that benefits from visual time management.
+A beautiful, custom**Development:**
+```bash
+# Install dependencies
+npm install
+
+# Option 1: Modern npm scripts (recommended)
+npm run dev          # Live server with auto-reload (recommended)
+npm start            # HTTP server
+npm run serve        # Python server on port 8000
+
+# Option 2: Legacy shell scripts (alternative)
+./start-dev.sh       # Interactive server selection
+./start-server.sh    # Direct Python server (serves public/ directory)
+
+# Open http://localhost:3003 (or :8000 for Python server)
+```pplication with color-coded time phases. Perfect for productivity techniques like Pomodoro, time blocking, or any activity that benefits from visual time management.
 
 ## Features
 
 ### Core Timer Functionality
 - ⏱️ **Flexible Timer**: Set timers from seconds to hours
 - ▶️ **Full Control**: Start, pause, stop, and reset functionality
-- 🎯 **Quick Presets**: Instant access to common timer durations (10s, 30s, 1m, 5m, 10m, 25m)
+- 🎯 **Quick Presets**: Instant access to common timer durations (15min, 30min, 45min, 60min)
 - ⌨️ **Keyboard Shortcuts**: Spacebar to start/pause
 
 ### Color Events System
@@ -42,11 +57,13 @@ A beautiful, customizable timer application with color-coded time phases. Perfec
 npm install
 
 # Start development server
-npm run dev          # Live server with auto-reload
+npm run dev          # Live server with auto-reload (recommended)
 # or
 npm start            # HTTP server
+# or
+npm run serve        # Python server on port 8000
 
-# Open http://localhost:3003
+# Open http://localhost:3003 (or :8000 for Python server)
 ```
 
 **Production Build:**
@@ -55,22 +72,31 @@ npm start            # HTTP server
 npm run build
 
 # Serve production build
+npm run serve:dist   # Serves on port 3004
+# or
 npx http-server dist -p 3003
 ```
+
+### Important Notes
+
+⚠️ **Development Setup**: This project uses an automatic file sync system. When you run development commands (`npm run dev`, `npm start`, etc.), the system automatically copies files from `src/` to `public/src/` so the development server can serve them properly.
+
+⚠️ **Icon Generation**: The `npm run build:icons` script is referenced in package.json but not yet implemented. Icons are currently included in the repository.
 
 ### Project Structure
 
 ```
 ColorTimer/
-├── src/                    # Source code
+├── src/                    # Source code (edit these files)
 │   ├── css/               # Stylesheets
 │   └── js/                # JavaScript modules
-├── public/                # Static assets and main files
+├── public/                # Development files (auto-generated)
+│   ├── src/               # Synced copy of src/ for development
 │   ├── assets/           # Static assets (icons, etc.)
 │   ├── index.html        # Main HTML file
-│   └── manifest.json     # PWA manifest
+│   ├── manifest.json     # PWA manifest
+│   └── service-worker.js # Service worker
 ├── scripts/              # Build and utility scripts
-├── tests/                # Test files
 ├── docs/                 # Documentation
 └── dist/                 # Build output (generated)
 ```
@@ -79,12 +105,15 @@ See [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) for detailed in
 
 ### Legacy Installation (Direct File Serving)
 
-If you prefer not to use the build process, you can still serve files directly:
+If you prefer not to use the build process, you can serve files directly from the public directory:
 
    **Option A: Using Python (if you have Python installed)**
    ```bash
+   # Navigate to public directory
+   cd public
+
    # Python 3
-   python -m http.server 8000
+   python3 -m http.server 8000
 
    # Python 2
    python -m SimpleHTTPServer 8000
@@ -92,11 +121,12 @@ If you prefer not to use the build process, you can still serve files directly:
 
    **Option B: Using Node.js (if you have Node.js installed)**
    ```bash
-   npx serve .
+   # Serve public directory
+   npx serve public
    ```
 
    **Option C: Using any local server**
-   - Use Live Server extension in VS Code
+   - Use Live Server extension in VS Code (point to public/ folder)
    - Use any other local development server
 
 3. **Open in Browser**
@@ -112,7 +142,7 @@ If you prefer not to use the build process, you can still serve files directly:
 ### Basic Timer Operation
 
 1. **Set Timer Duration**
-   - Use quick preset buttons (10s, 30s, 1m, 5m, 10m, 25m)
+   - Use quick preset buttons (15min, 30min, 45min, 60min)
    - Or click Settings ⚙️ to set custom time
 
 2. **Control Timer**
@@ -194,6 +224,7 @@ Timer: 2 hours (7200s)
 - **Pure Web Technologies**: HTML5, CSS3, JavaScript (ES6+)
 - **No Dependencies**: No external libraries or frameworks
 - **Modular Design**: Separate modules for Timer, Events, Canvas, and App logic
+- **Development Sync**: Source files in `src/` are automatically synced to `public/src/` during development
 
 ### Browser Support
 - **Modern Browsers**: Chrome 80+, Firefox 75+, Safari 13+, Edge 80+
@@ -208,34 +239,47 @@ Timer: 2 hours (7200s)
 ### File Structure
 ```
 ColorTimer/
-├── index.html              # Main app interface
-├── manifest.json           # PWA manifest
-├── service-worker.js       # Offline functionality
-├── css/
-│   └── styles.css          # Styles and responsive design
-├── js/
-│   ├── app.js             # Main application controller
-│   ├── timer.js           # Timer core functionality
-│   ├── events.js          # Event management system
-│   └── canvas.js          # Circular timer visualization
-├── icons/                 # PWA icons (to be added)
-└── README.md              # This file
+├── public/
+│   ├── index.html          # Main app interface
+│   ├── manifest.json       # PWA manifest
+│   ├── service-worker.js   # Offline functionality
+│   ├── src/               # Synced source files (auto-generated)
+│   │   ├── css/
+│   │   │   └── styles.css  # Styles and responsive design
+│   │   └── js/
+│   │       ├── app.js      # Main application controller
+│   │       ├── timer.js    # Timer core functionality
+│   │       ├── events.js   # Event management system
+│   │       └── canvas.js   # Circular timer visualization
+│   └── assets/
+│       └── icons/         # PWA icons
+├── src/                   # Source files (edit these)
+│   ├── css/
+│   │   └── styles.css     # Main stylesheet
+│   └── js/               # JavaScript modules
+│       ├── app.js        # Main application controller
+│       ├── timer.js      # Timer functionality
+│       ├── events.js     # Event management
+│       └── canvas.js     # Canvas rendering
+├── scripts/              # Build and development scripts
+├── docs/                 # Documentation
+└── README.md             # This file
 ```
 
 ## Customization
 
 ### Changing Colors
-- Edit the default color schemes in `js/events.js`
-- Modify CSS custom properties in `css/styles.css`
+- Edit the default color schemes in `src/js/events.js`
+- Modify CSS custom properties in `src/css/styles.css`
 
 ### Adding Features
-- Timer logic: Modify `js/timer.js`
-- Event system: Extend `js/events.js`
-- Visual elements: Update `js/canvas.js`
-- UI components: Edit HTML and CSS
+- Timer logic: Modify `src/js/timer.js`
+- Event system: Extend `src/js/events.js`
+- Visual elements: Update `src/js/canvas.js`
+- UI components: Edit `public/index.html` and `src/css/styles.css`
 
 ### Sounds and Notifications
-- Completion sound: Modify `playNotificationSound()` in `js/app.js`
+- Completion sound: Modify `playNotificationSound()` in `src/js/app.js`
 - Custom notification messages: Edit `showNotification()` method
 
 ## Troubleshooting
@@ -261,10 +305,24 @@ ColorTimer/
 
 ## Development
 
+### Development Workflow
+1. **Always edit files in `src/`** - these are your source files
+2. **Never edit `public/src/`** - these files are auto-generated
+3. **Use development scripts** - they automatically sync your changes
+
+### Available Scripts
+- `npm run dev` - Development server with live reload
+- `npm start` - Development server (HTTP)
+- `npm run serve` - Python development server
+- `npm run build` - Production build
+- `npm run lint` - ESLint code checking
+- `npm run format` - Prettier code formatting
+- `npm run audit` - Lighthouse PWA audit
+
 ### Contributing
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
+3. Make your changes in `src/` directory
 4. Test thoroughly
 5. Submit a pull request
 

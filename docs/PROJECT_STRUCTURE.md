@@ -22,15 +22,11 @@ ColorTimer/
 │   └── service-worker.js # Service worker
 ├── scripts/              # Build and utility scripts
 │   ├── build.sh          # Production build script
-│   ├── create-icons.js   # Icon generation
-│   ├── generate-icons.html
-│   └── svg-to-png.html
-├── tests/                # Test files
-│   ├── test-app.js
-│   ├── test-relative-units.html
-│   └── test-units.html
+│   └── build.js          # Production build script (Node.js)
 ├── docs/                 # Documentation
-│   └── DEVELOPMENT.md
+│   ├── DEVELOPMENT.md    # Development guide
+│   ├── PROJECT_STRUCTURE.md # Project structure documentation
+│   └── STRUCTURE.md      # Detailed structure documentation
 ├── dist/                 # Build output (generated)
 ├── node_modules/         # Dependencies (generated)
 └── package.json          # Project configuration
@@ -47,7 +43,6 @@ npm start            # HTTP server
 ### Building
 ```bash
 npm run build        # Full production build
-npm run build:icons  # Generate icons only
 ```
 
 ### Code Quality
@@ -71,3 +66,20 @@ npm run format       # Prettier formatting
 - `.prettierrc` - Code formatting rules
 - `.gitignore` - Git ignore patterns
 - `manifest.json` - PWA configuration
+
+## 🔧 Development Notes
+
+### File Structure Explanation
+
+This project uses a development sync approach:
+
+- **Source Files**: `src/` contains the authoritative source code
+- **Development Serving**: `public/` directory is served during development
+- **Auto-Sync**: `scripts/dev-sync.js` copies `src/` files to `public/src/` for development
+- **Production**: Build process uses files from `src/` directly
+
+### Important Guidelines
+
+1. **Always edit files in `src/`** - these are your source files
+2. **Never edit `public/src/`** - these files are auto-generated copies
+3. **Development sync** runs automatically with `npm run dev` and `npm start`

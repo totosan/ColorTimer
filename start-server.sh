@@ -6,8 +6,8 @@ echo "======================================="
 echo ""
 
 # Check if we're in the right directory
-if [ ! -f "index.html" ]; then
-    echo "❌ Error: index.html not found. Make sure you're in the ColorTimer directory."
+if [ ! -f "public/index.html" ]; then
+    echo "❌ Error: public/index.html not found. Make sure you're in the ColorTimer directory."
     exit 1
 fi
 
@@ -18,14 +18,18 @@ echo ""
 echo "🔧 Starting development server..."
 echo ""
 
+# Navigate to public directory for serving
+cd public
+
 # Check if Python 3 is available
 if command -v python3 &> /dev/null; then
     echo "🐍 Using Python 3 server on http://localhost:8000"
     echo "📱 For PWA testing, use: http://localhost:8000"
     echo ""
     echo "🚀 Open your browser and navigate to: http://localhost:8000"
-    echo "⚙️  For icons: open generate-icons.html and click 'Generate All Icons'"
     echo "⏹️  Press Ctrl+C to stop the server"
+    echo ""
+    echo "📁 Serving from: $(pwd)"
     echo ""
     python3 -m http.server 8000
 elif command -v python &> /dev/null; then
@@ -33,8 +37,9 @@ elif command -v python &> /dev/null; then
     echo "📱 For PWA testing, use: http://localhost:8000"
     echo ""
     echo "🚀 Open your browser and navigate to: http://localhost:8000"
-    echo "⚙️  For icons: open generate-icons.html and click 'Generate All Icons'"
     echo "⏹️  Press Ctrl+C to stop the server"
+    echo ""
+    echo "📁 Serving from: $(pwd)"
     echo ""
     python -m SimpleHTTPServer 8000
 else

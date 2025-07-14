@@ -1,6 +1,9 @@
 # Project Structure
 
-This document describes the organized folder structure of the Color Timer project.
+This document describes the organized folder structure of the Col4. **Development Ready**: `public/` contains files served during development
+5. **Build Scripts**: Build and utility scripts in `scripts/`
+6. **Documentation**: Centralized docs in `docs/`
+7. **Modern Tooling**: ESLint, Prettier, and build scripts includedmer project.
 
 ## 📁 Directory Structure
 
@@ -28,20 +31,12 @@ ColorTimer/
 │
 ├── 📂 scripts/              # Build and utility scripts
 │   ├── build.js             # Production build script
-│   ├── create-icons.js      # Icon generation
-│   ├── clear-storage.js     # Storage utilities
-│   ├── console-test.js      # Console testing
-│   ├── generate-icons.html  # Icon generation tool
-│   └── svg-to-png.html      # SVG conversion tool
-│
-├── 📂 tests/                # Test files
-│   ├── test-app.js          # Application tests
-│   ├── test-relative-units.html
-│   ├── test-units.html
-│   └── test-*.html          # Various test files
+│   └── build.sh             # Build shell script
 │
 ├── 📂 docs/                 # Documentation
-│   └── DEVELOPMENT.md       # Development guide
+│   ├── DEVELOPMENT.md       # Development guide
+│   ├── PROJECT_STRUCTURE.md # Project structure documentation
+│   └── STRUCTURE.md         # Detailed structure documentation
 │
 ├── 📂 dist/                 # Production build output (generated)
 │   ├── index.html           # Optimized HTML
@@ -84,9 +79,10 @@ npm run format      # Format code with Prettier
 
 ### Other Commands
 ```bash
-npm run build:icons # Generate app icons
 npm run audit      # Run Lighthouse audit
 ```
+
+**Note**: Icon generation and test commands are not currently implemented.
 
 ## 📝 Key Benefits of This Structure
 
@@ -98,6 +94,21 @@ npm run audit      # Run Lighthouse audit
 6. **Modern Tooling**: ESLint, Prettier, and build scripts included
 
 ## 🔧 Path Configuration
+
+### Development File Sync
+
+The project uses a development sync system where:
+- Source files are in `src/` (the authoritative source)
+- During development, `scripts/dev-sync.js` copies `src/` files to `public/src/`
+- The `public/` directory is served during development
+- Production builds use files from `src/` directly
+
+This allows for a clean separation between development serving and source code management.
+
+### File Path Notes
+- Edit files in `src/` directory (these are your source files)
+- The `public/src/` files are auto-generated copies for development serving
+- Never edit files directly in `public/src/` as they will be overwritten
 
 - **Development**: Files in `public/` reference `../src/` for CSS/JS
 - **Production**: Build process updates paths to `assets/` for optimized files

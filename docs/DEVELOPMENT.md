@@ -11,14 +11,39 @@ npm run serve    # Python server on port 8000 (legacy)
 
 ### Build Process
 ```bash
-npm run build        # Full production build (icons + build)
-npm run build:icons  # Generate icons only
+npm run build        # Full production build
 ```
+
+**Note**: Icon generation script is not currently implemented.
 
 ### Using Development Script
 ```bash
-./start-dev.sh   # Interactive server selection
+# Modern npm scripts (recommended)
+npm run dev      # Live server with auto-reload on port 3003 (recommended)
+npm run start    # HTTP server on port 3003
+npm run serve    # Python server on port 8000
+
+# Alternative: Legacy shell scripts
+./start-dev.sh   # Interactive server selection (calls npm scripts)
+./start-server.sh # Direct Python server (serves public/ directory only)
 ```
+
+### When to Use Which Server
+
+**Use npm scripts (`npm run dev`, `npm start`) when:**
+- ✅ You want the modern development experience
+- ✅ You need automatic file synchronization from `src/` to `public/src/`
+- ✅ You're actively developing (recommended)
+
+**Use `./start-server.sh` when:**
+- ✅ You want a simple Python server
+- ✅ You only need to serve static files from `public/`
+- ✅ You don't need file synchronization
+- ⚠️ Note: This doesn't run the dev-sync process
+
+**Use `./start-dev.sh` when:**
+- ✅ You want an interactive menu to choose server type
+- ✅ You prefer shell scripts over npm commands
 
 ## Project Structure
 
@@ -36,7 +61,6 @@ The project follows modern web development practices:
 - **ESLint**: Code linting - `npm run lint`
 - **Prettier**: Code formatting - `npm run format`
 - **Lighthouse**: PWA audit - `npm run audit`
-- **Icon Generation**: `npm run build:icons`
 - **Production Build**: `npm run build`
 
 **Note**: Development tools use `npx` to avoid global installation and permission issues.
@@ -70,14 +94,11 @@ The project follows modern web development practices:
 
 ```bash
 # Test PWA in browser
-lighthouse http://localhost:3000 --view
+lighthouse http://localhost:3003 --view
 
 # Format all code
 prettier --write '**/*.{js,html,css,json}'
 
 # Lint JavaScript
-eslint js/**/*.js --fix
-
-# Generate fresh icons
-node create-icons.js
+eslint src/**/*.js --fix
 ```
