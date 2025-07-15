@@ -141,7 +141,7 @@ class CanvasTimer {
         this.ctx.restore();
     }
 
-    // Draw multiple color segments for events with gradients
+    // Draw multiple color segments for events with gradients only in gaps
     drawEventSegments(events, totalSeconds, elapsedSeconds) {
         this.clearCanvas();
         this.drawBackground();
@@ -150,21 +150,17 @@ class CanvasTimer {
         // Sort events by start time
         const sortedEvents = [...events].sort((a, b) => a.startTime - b.startTime);
 
-        // Create segments with gradients
-        const segments = this.createEventSegmentsWithGradients(sortedEvents, totalSeconds);
+        // First, draw all gradient segments for gaps
+        this.drawGradientGaps(sortedEvents, totalSeconds, elapsedSeconds);
 
-        // Draw each segment (only up to elapsed time)
-        for (const segment of segments) {
-            const startProgress = segment.startTime / totalSeconds;
-            const endProgress = Math.min(segment.endTime / totalSeconds, elapsedSeconds / totalSeconds);
+        // Then draw all events (later events will overwrite earlier ones in overlaps)
+        for (const event of sortedEvents) {
+            const startProgress = event.startTime / totalSeconds;
+            const endProgress = Math.min(event.endTime / totalSeconds, elapsedSeconds / totalSeconds);
 
-            // Only draw if there's actual progress to show
-            if (endProgress > startProgress && elapsedSeconds > segment.startTime) {
-                if (segment.isGradient) {
-                    this.drawGradientSegment(startProgress, endProgress, segment.startColor, segment.endColor);
-                } else {
-                    this.drawSegment(startProgress, endProgress, segment.color);
-                }
+            // Only draw if there's actual progress to show and the event has started
+            if (endProgress > startProgress && elapsedSeconds > event.startTime) {
+                this.drawSegment(startProgress, endProgress, event.color);
             }
         }
 
@@ -185,6 +181,47 @@ class CanvasTimer {
             this.drawGlow(currentEvent.color);
         }
    }
+
+    // Draw gradient segments only for gaps between events
+    drawGradientGaps(sortedEvents, totalSeconds, elapsedSeconds) {
+        const defaultColor = '#f0f0f0';
+        let lastEventEnd = 0;
+
+        for (let i = 0; i < sortedEvents.length; i++) {
+            const currentEvent = sortedEvents[i];
+
+            // Check for gap between last event end and current event start
+            if (lastEventEnd < currentEvent.startTime) {
+                const gapStart = lastEventEnd;
+                const gapEnd = currentEvent.startTime;
+
+                // Determine colors for the gradient
+                const startColor = i === 0 ? defaultColor : sortedEvents[i - 1].color;
+                const endColor = currentEvent.color;
+
+                // Draw gradient for this gap (only up to elapsed time)
+                const startProgress = gapStart / totalSeconds;
+                const endProgress = Math.min(gapEnd / totalSeconds, elapsedSeconds / totalSeconds);
+
+                if (endProgress > startProgress && elapsedSeconds > gapStart) {
+                    this.drawGradientSegment(startProgress, endProgress, startColor, endColor);
+                }
+            }
+
+            lastEventEnd = Math.max(lastEventEnd, currentEvent.endTime);
+        }
+
+        // Draw gradient from last event to end if there's remaining time
+        if (lastEventEnd < totalSeconds && elapsedSeconds > lastEventEnd) {
+            const lastEvent = sortedEvents[sortedEvents.length - 1];
+            const startProgress = lastEventEnd / totalSeconds;
+            const endProgress = Math.min(1, elapsedSeconds / totalSeconds);
+
+            if (endProgress > startProgress) {
+                this.drawGradientSegment(startProgress, endProgress, lastEvent.color, defaultColor);
+            }
+        }
+    }
 
     // Draw a colored segment
     drawSegment(startProgress, endProgress, color) {
@@ -497,7 +534,7 @@ class CanvasTimer {
         this.ctx.shadowOffsetY = 0;
     }
 
-    // Create segments with gradients for gaps and overlaps
+    // Create segments with gradients only for gaps between events
     createEventSegmentsWithGradients(sortedEvents, totalSeconds) {
         const segments = [];
 
@@ -511,7 +548,6 @@ class CanvasTimer {
 
         for (let i = 0; i < sortedEvents.length; i++) {
             const currentEvent = sortedEvents[i];
-            const nextEvent = i < sortedEvents.length - 1 ? sortedEvents[i + 1] : null;
 
             // Add gradient from current time to current event start if there's a gap
             if (currentTime < currentEvent.startTime) {
@@ -526,56 +562,18 @@ class CanvasTimer {
                 });
             }
 
-            // Add the actual event (only non-overlapping part)
-            const eventStart = Math.max(currentEvent.startTime, currentTime);
-            let eventEnd = currentEvent.endTime;
+            // Add the actual event (full event, no handling of overlaps - later events will overwrite)
+            segments.push({
+                startTime: currentEvent.startTime,
+                endTime: currentEvent.endTime,
+                isGradient: false,
+                color: currentEvent.color
+            });
 
-            // Check for overlap with next event
-            if (nextEvent && currentEvent.endTime > nextEvent.startTime) {
-                // Event overlaps with next event
-                eventEnd = nextEvent.startTime;
-
-                // Add the non-overlapping part of current event
-                if (eventEnd > eventStart) {
-                    segments.push({
-                        startTime: eventStart,
-                        endTime: eventEnd,
-                        isGradient: false,
-                        color: currentEvent.color
-                    });
-                }
-
-                // Add gradient for the overlapping region
-                const overlapStart = nextEvent.startTime;
-                const overlapEnd = Math.min(currentEvent.endTime, nextEvent.endTime);
-
-                if (overlapEnd > overlapStart) {
-                    segments.push({
-                        startTime: overlapStart,
-                        endTime: overlapEnd,
-                        isGradient: true,
-                        startColor: currentEvent.color,
-                        endColor: nextEvent.color
-                    });
-                }
-
-                currentTime = overlapEnd;
-            } else {
-                // No overlap, add the full event
-                if (eventEnd > eventStart) {
-                    segments.push({
-                        startTime: eventStart,
-                        endTime: eventEnd,
-                        isGradient: false,
-                        color: currentEvent.color
-                    });
-                }
-
-                currentTime = eventEnd;
-            }
+            currentTime = Math.max(currentTime, currentEvent.endTime);
         }
 
-        // Add gradient from last event to end if needed
+        // Add gradient from last event to end if there's remaining time
         if (currentTime < totalSeconds) {
             const lastEvent = sortedEvents[sortedEvents.length - 1];
             segments.push({
@@ -590,24 +588,54 @@ class CanvasTimer {
         return segments;
     }
 
-    // Get current color at specific time position
+    // Get current color at specific time position (with gap gradients only)
     getCurrentColor(events, elapsedSeconds, totalSeconds) {
         if (totalSeconds <= 0) return this.progressColor;
 
         const sortedEvents = [...events].sort((a, b) => a.startTime - b.startTime);
-        const segments = this.createEventSegmentsWithGradients(sortedEvents, totalSeconds);
 
-        // Find the segment that contains the current time
-        for (const segment of segments) {
-            if (elapsedSeconds >= segment.startTime && elapsedSeconds < segment.endTime) {
-                if (segment.isGradient) {
-                    // Calculate position within gradient
-                    const segmentProgress = (elapsedSeconds - segment.startTime) / (segment.endTime - segment.startTime);
-                    return this.getGradientColor(segment.startColor, segment.endColor, segmentProgress);
-                } else {
-                    return segment.color;
-                }
+        // First check if we're within any event (latest event takes precedence for overlaps)
+        let currentEvent = null;
+        for (const event of sortedEvents) {
+            if (elapsedSeconds >= event.startTime && elapsedSeconds < event.endTime) {
+                currentEvent = event; // Later events will overwrite earlier ones
             }
+        }
+
+        if (currentEvent) {
+            return currentEvent.color;
+        }
+
+        // Not in an event, check if we're in a gap with gradient
+        const defaultColor = '#f0f0f0';
+        let lastEventEnd = 0;
+
+        for (let i = 0; i < sortedEvents.length; i++) {
+            const currentEventInLoop = sortedEvents[i];
+
+            // Check if we're in the gap before this event
+            if (elapsedSeconds >= lastEventEnd && elapsedSeconds < currentEventInLoop.startTime) {
+                const gapStart = lastEventEnd;
+                const gapEnd = currentEventInLoop.startTime;
+                const gapProgress = (elapsedSeconds - gapStart) / (gapEnd - gapStart);
+
+                const startColor = i === 0 ? defaultColor : sortedEvents[i - 1].color;
+                const endColor = currentEventInLoop.color;
+
+                return this.getGradientColor(startColor, endColor, gapProgress);
+            }
+
+            lastEventEnd = Math.max(lastEventEnd, currentEventInLoop.endTime);
+        }
+
+        // Check if we're in the gap after the last event
+        if (elapsedSeconds >= lastEventEnd && sortedEvents.length > 0) {
+            const gapStart = lastEventEnd;
+            const gapEnd = totalSeconds;
+            const gapProgress = (elapsedSeconds - gapStart) / (gapEnd - gapStart);
+
+            const lastEvent = sortedEvents[sortedEvents.length - 1];
+            return this.getGradientColor(lastEvent.color, defaultColor, gapProgress);
         }
 
         // Fallback to default color
