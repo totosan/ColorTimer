@@ -35,10 +35,51 @@ body {
     backdrop-filter: blur(10px);
 }
 
+.header-title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
 .header h1 {
     font-size: 1.8rem;
     font-weight: 600;
     color: #4a5568;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.current-event {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    transition: color 0.3s ease, opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.current-event.active {
+    color: #4299e1;
+    opacity: 1;
+    font-weight: 600;
+}
+
+.event-color-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #718096;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.current-event.active .event-color-indicator {
+    transform: scale(1.2);
 }
 
 .icon-btn {
@@ -642,6 +683,57 @@ body {
     transform: scale(1.1);
 }
 
+/* Markers Legend */
+.markers-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.legend-marker {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.start-marker {
+    background: #ff4444;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.end-marker {
+    background: transparent;
+    border: 3px solid #ff4444;
+    position: relative;
+}
+
+.end-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 2px;
+    background: #ff4444;
+    border-radius: 50%;
+}
+
 /* Utility classes */
 .hidden {
     display: none !important;
@@ -656,6 +748,14 @@ body {
 
     .header {
         padding: 1rem;
+    }
+
+    .header h1 {
+        font-size: 1.6rem;
+    }
+
+    .current-event {
+        font-size: 0.8rem;
     }
 
     .main-content {
@@ -723,6 +823,14 @@ body {
 }
 
 @media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.4rem;
+    }
+
+    .current-event {
+        font-size: 0.75rem;
+    }
+
     #timerCanvas {
         width: 250px !important;
         height: 250px !important;

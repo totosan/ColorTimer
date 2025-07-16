@@ -5,11 +5,25 @@ class EventManager {
         this.currentEvent = null;
         this.defaultEvents = [
             {
-                id: 'default',
-                name: 'Timer',
+                id: 'focus1',
+                name: 'Focus Session',
                 startTime: 0,
-                endTime: 300, // 5 minutes
+                endTime: 120, // 2 minutes
                 color: '#ff4444'
+            },
+            {
+                id: 'break1',
+                name: 'Short Break',
+                startTime: 180, // Gap from 2min to 3min for gradient
+                endTime: 240, // 4 minutes
+                color: '#00ff88'
+            },
+            {
+                id: 'focus2',
+                name: 'Focus Session 2',
+                startTime: 220, // Overlap with break for gradient
+                endTime: 360, // 6 minutes
+                color: '#0088ff'
             }
         ];
         this.loadEvents();
@@ -42,7 +56,7 @@ class EventManager {
         if (eventIndex === -1) return null;
 
         const event = this.events[eventIndex];
-        
+
         // Update properties
         if (updates.name !== undefined) event.name = updates.name;
         if (updates.startTime !== undefined) event.startTime = Math.max(0, parseInt(updates.startTime));
@@ -63,12 +77,12 @@ class EventManager {
     deleteEvent(id) {
         const initialLength = this.events.length;
         this.events = this.events.filter(e => e.id !== id);
-        
+
         // Don't allow deleting all events
         if (this.events.length === 0) {
             this.events = [...this.defaultEvents];
         }
-        
+
         this.saveEvents();
         return this.events.length < initialLength;
     }
@@ -104,7 +118,7 @@ class EventManager {
     // Generate events for a specific duration if none exist
     generateEventsForDuration(totalSeconds) {
         const validEvents = this.getEventsForDuration(totalSeconds);
-        
+
         if (validEvents.length === 0) {
             // Create a default event that spans the entire duration
             return [{
@@ -144,30 +158,30 @@ class EventManager {
             const savedEvents = localStorage.getItem('timerEvents');
             if (savedEvents) {
                 this.events = JSON.parse(savedEvents);
-                
+
                 // Validate loaded events
-                this.events = this.events.filter(event => 
-                    event.id && 
-                    event.name && 
-                    typeof event.startTime === 'number' && 
+                this.events = this.events.filter(event =>
+                    event.id &&
+                    event.name &&
+                    typeof event.startTime === 'number' &&
                     typeof event.endTime === 'number' &&
                     event.color &&
                     event.startTime < event.endTime
                 );
-                
+
                 // If no valid events, use defaults
                 if (this.events.length === 0) {
                     this.events = [...this.defaultEvents];
                     this.saveEvents();
                 }
-                
+
                 this.sortEvents();
                 return true;
             }
         } catch (error) {
             console.error('Error loading events:', error);
         }
-        
+
         // Use default events if loading fails
         this.events = [...this.defaultEvents];
         this.saveEvents();
@@ -183,27 +197,27 @@ class EventManager {
     // Validate event data
     validateEvent(event) {
         const errors = [];
-        
+
         if (!event.name || event.name.trim() === '') {
             errors.push('Event name is required');
         }
-        
+
         if (typeof event.startTime !== 'number' || event.startTime < 0) {
             errors.push('Start time must be a non-negative number');
         }
-        
+
         if (typeof event.endTime !== 'number' || event.endTime <= 0) {
             errors.push('End time must be a positive number');
         }
-        
+
         if (event.startTime >= event.endTime) {
             errors.push('Start time must be less than end time');
         }
-        
+
         if (!event.color || !/^#[0-9A-Fa-f]{6}$/.test(event.color)) {
             errors.push('Color must be a valid hex color');
         }
-        
+
         return errors;
     }
 
@@ -223,28 +237,28 @@ class EventManager {
     validateCoverage(totalSeconds) {
         const issues = [];
         const sortedEvents = [...this.events].sort((a, b) => a.startTime - b.startTime);
-        
+
         // Check if we start from 0
         if (sortedEvents.length === 0 || sortedEvents[0].startTime > 0) {
             issues.push('No event covers the beginning of the timer');
         }
-        
+
         // Check for gaps
         for (let i = 0; i < sortedEvents.length - 1; i++) {
             const current = sortedEvents[i];
             const next = sortedEvents[i + 1];
-            
+
             if (current.endTime < next.startTime) {
                 issues.push(`Gap between events at ${current.endTime}s - ${next.startTime}s`);
             }
         }
-        
+
         // Check if we cover the full duration
         const lastEvent = sortedEvents[sortedEvents.length - 1];
         if (!lastEvent || lastEvent.endTime < totalSeconds) {
             issues.push('Events do not cover the full timer duration');
         }
-        
+
         return issues;
     }
 }

@@ -8,6 +8,9 @@ class ColorTimerApp {
         // UI Elements
         this.timeDisplay = document.getElementById('timeDisplay');
         this.phaseDisplay = document.getElementById('phaseDisplay');
+        this.currentEventDisplay = document.getElementById('currentEventDisplay');
+        this.eventNameText = document.getElementById('eventNameText');
+        this.eventColorIndicator = document.getElementById('eventColorIndicator');
 
         // Control buttons
         this.startBtn = document.getElementById('startBtn');
@@ -283,7 +286,26 @@ class ColorTimerApp {
 
         const elapsed = this.timer.totalTime - this.timer.remainingTime;
         const currentEvent = this.eventManager.getCurrentEvent(elapsed, this.timer.totalTime);
-        this.phaseDisplay.textContent = currentEvent ? currentEvent.name : 'Ready';
+        const eventName = currentEvent ? currentEvent.name : 'Ready';
+
+        this.phaseDisplay.textContent = eventName;
+
+        // Update header event display
+        this.eventNameText.textContent = eventName;
+
+        // Update color indicator
+        if (currentEvent && currentEvent.color) {
+            this.eventColorIndicator.style.backgroundColor = currentEvent.color;
+        } else {
+            this.eventColorIndicator.style.backgroundColor = '#718096';
+        }
+
+        // Add active class when timer is running
+        if (this.timer.isRunning && this.timer.remainingTime > 0) {
+            this.currentEventDisplay.classList.add('active');
+        } else {
+            this.currentEventDisplay.classList.remove('active');
+        }
 
         // Update page title
         if (this.timer.isRunning && this.timer.remainingTime > 0) {
@@ -302,24 +324,68 @@ class ColorTimerApp {
     }
 
     updateBackgroundColor() {
-        // Keep background neutral - we'll color the main content instead
-        this.resetBackgroundColor();
+        // Get current gradient color and apply to background
+        this.updateGradientBackgroundColor();
 
-        // Update main content colors based on current event
+        // Update main content colors based on current gradient color
         this.updateMainContentColors();
+    }
+
+    updateGradientBackgroundColor() {
+        if (this.timer.totalTime > 0) {
+            const elapsed = this.timer.totalTime - this.timer.remainingTime;
+            const events = this.eventManager.getEventsForDuration(this.timer.totalTime);
+
+            // Get the current color from the gradient system
+            const currentColor = this.canvas.getCurrentColor(events, elapsed, this.timer.totalTime);
+
+            // Apply much more visible versions of the current color as background
+            const lightColor = this.canvas.lightenColor(currentColor, 0.60);  // Even more visible
+            const mediumColor = this.canvas.lightenColor(currentColor, 0.75); // Even more visible
+
+            // Override the gradient background completely and make it stretch full screen
+            document.body.style.background = 'none';
+            document.body.style.transition = 'background-color 0.3s ease-in-out';
+            document.body.style.backgroundColor = lightColor;
+            document.body.style.minHeight = '100vh';
+            document.body.style.width = '100vw';
+
+            // Update the app container to also reflect the color
+            const appContainer = document.querySelector('.app');
+            if (appContainer) {
+                appContainer.style.transition = 'background-color 0.3s ease-in-out';
+                appContainer.style.backgroundColor = mediumColor;
+                appContainer.style.backdropFilter = 'none'; // Remove blur effect
+            }
+
+            // Update the main container with a slightly stronger tint
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.transition = 'background-color 0.3s ease-in-out';
+                mainContent.style.backgroundColor = this.canvas.lightenColor(currentColor, 0.80);
+            }
+
+            // Update the timer container for additional visual feedback
+            const timerContainer = document.querySelector('.timer-container');
+            if (timerContainer) {
+                const timerColor = this.canvas.lightenColor(currentColor, 0.85);
+                timerContainer.style.transition = 'background-color 0.3s ease-in-out';
+                timerContainer.style.backgroundColor = timerColor;
+                timerContainer.style.borderRadius = '50%';
+                timerContainer.style.padding = '1rem';
+            }
+        } else {
+            this.resetBackgroundColor();
+        }
     }
 
     updateMainContentColors() {
         if (this.timer.isRunning && this.timer.totalTime > 0) {
             const elapsed = this.timer.totalTime - this.timer.remainingTime;
-            const currentEvent = this.eventManager.getCurrentEvent(elapsed, this.timer.totalTime);
+            const events = this.eventManager.getEventsForDuration(this.timer.totalTime);
+            const currentColor = this.canvas.getCurrentColor(events, elapsed, this.timer.totalTime);
 
-            if (currentEvent) {
-                this.setMainContentColor(currentEvent.color);
-            } else {
-                // Timer running but no current event
-                this.setNeutralContentColor();
-            }
+            this.setMainContentColor(currentColor);
         } else {
             // Timer not running - neutral colors
             this.setNeutralContentColor();
@@ -432,10 +498,37 @@ class ColorTimerApp {
     }
 
     resetBackgroundColor() {
-        // Keep neutral background always
+        // Reset to neutral background
+        document.body.style.backgroundColor = '';
         document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-        document.body.style.transition = 'background 1s ease-in-out';
+        document.body.style.transition = 'background-color 0.5s ease-in-out';
         document.body.style.animation = ''; // Clear any animations
+        document.body.style.minHeight = '';
+        document.body.style.width = '';
+
+        // Reset app container
+        const appContainer = document.querySelector('.app');
+        if (appContainer) {
+            appContainer.style.backgroundColor = '';
+            appContainer.style.transition = '';
+            appContainer.style.backdropFilter = 'blur(10px)'; // Restore blur effect
+        }
+
+        // Reset main content background
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.style.backgroundColor = '';
+            mainContent.style.transition = '';
+        }
+
+        // Reset timer container background
+        const timerContainer = document.querySelector('.timer-container');
+        if (timerContainer) {
+            timerContainer.style.backgroundColor = '';
+            timerContainer.style.transition = '';
+            timerContainer.style.padding = '';
+            timerContainer.style.borderRadius = '';
+        }
     }
 
     lightenColor(color, amount) {

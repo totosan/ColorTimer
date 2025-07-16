@@ -15,13 +15,19 @@
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.svg">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="src/css/styles.css?v=2">
+    <link rel="stylesheet" href="src/css/styles.css?v=4">
 </head>
 <body>
     <div id="app" class="app">
         <!-- Header -->
         <header class="header">
-            <h1>Color Timer</h1>
+            <div class="header-title">
+                <h1>Color Timer</h1>
+                <div id="currentEventDisplay" class="current-event">
+                    <span id="eventColorIndicator" class="event-color-indicator"></span>
+                    <span id="eventNameText">Ready</span>
+                </div>
+            </div>
             <button id="settingsBtn" class="icon-btn" title="Settings">⚙️</button>
         </header>
 
@@ -41,6 +47,18 @@
                 <button id="pauseBtn" class="control-btn" disabled>Pause</button>
                 <button id="stopBtn" class="control-btn" disabled>Stop</button>
                 <button id="resetBtn" class="control-btn">Reset</button>
+            </div>
+
+            <!-- Markers Legend -->
+            <div class="markers-legend">
+                <div class="legend-item">
+                    <div class="legend-marker start-marker"></div>
+                    <span>Event Start</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker end-marker"></div>
+                    <span>Event End</span>
+                </div>
             </div>
 
             <!-- Quick Timer Presets -->
@@ -69,7 +87,7 @@
                     <div class="time-inputs">
                         <div class="input-group">
                             <label for="minutesInput">Minutes</label>
-                            <input type="number" id="minutesInput" min="0" max="60" value="5">
+                            <input type="number" id="minutesInput" min="0" max="60" value="6">
                         </div>
                         <div class="input-group">
                             <label for="secondsInput">Seconds</label>
@@ -137,10 +155,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="src/js/timer.js?v=2"></script>
-    <script src="src/js/events.js?v=2"></script>
-    <script src="src/js/canvas.js?v=2"></script>
-    <script src="src/js/app.js?v=2"></script>
+    <script src="src/js/timer.js?v=5"></script>
+    <script src="src/js/events.js?v=5"></script>
+    <script src="src/js/canvas.js?v=5"></script>
+    <script src="src/js/app.js?v=5"></script>
 
     <!-- PWA Installation -->
     <script>
