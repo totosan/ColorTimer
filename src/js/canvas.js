@@ -49,10 +49,8 @@ class CanvasTimer {
     // Main drawing function
     draw(progress, totalProgress, color, phase) {
         this.clearCanvas();
-        this.drawBackground();
         this.drawTicks();
         this.drawProgress(progress, color);
-        this.drawCenterCircle();
 
         // Add subtle glow effect when running
         if (progress > 0 && progress < 1) {
@@ -63,15 +61,6 @@ class CanvasTimer {
     // Clear the entire canvas
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-
-    // Draw the background circle
-    drawBackground() {
-        this.ctx.beginPath();
-        this.ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
-        this.ctx.strokeStyle = this.backgroundColor;
-        this.ctx.lineWidth = this.lineWidth;
-        this.ctx.stroke();
     }
 
     // Draw progress arc
@@ -114,19 +103,6 @@ class CanvasTimer {
         }
     }
 
-    // Draw center circle
-    drawCenterCircle() {
-        this.ctx.beginPath();
-        this.ctx.arc(this.centerX, this.centerY, 15, 0, 2 * Math.PI);
-        this.ctx.fillStyle = '#333333';
-        this.ctx.fill();
-
-        // Inner circle
-        this.ctx.beginPath();
-        this.ctx.arc(this.centerX, this.centerY, 8, 0, 2 * Math.PI);
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fill();
-    }
 
     // Draw glow effect
     drawGlow(color) {
@@ -144,7 +120,6 @@ class CanvasTimer {
     // Draw multiple color segments for events with gradients only in gaps
     drawEventSegments(events, totalSeconds, elapsedSeconds) {
         this.clearCanvas();
-        this.drawBackground();
         this.drawTicks();
 
         // Sort events by start time
@@ -166,8 +141,6 @@ class CanvasTimer {
 
         // Draw current position indicator (black tick)
         this.drawCurrentPositionTick(elapsedSeconds, totalSeconds);
-
-        this.drawCenterCircle();
 
         // Add start and end markers for events
         this.drawEventStartEndMarkers(sortedEvents, totalSeconds);
@@ -199,12 +172,24 @@ class CanvasTimer {
                 const startColor = i === 0 ? defaultColor : sortedEvents[i - 1].color;
                 const endColor = currentEvent.color;
 
-                // Draw gradient for this gap (only up to elapsed time)
-                const startProgress = gapStart / totalSeconds;
-                const endProgress = Math.min(gapEnd / totalSeconds, elapsedSeconds / totalSeconds);
+                // Only draw if the elapsed time has reached the gap
+                if (elapsedSeconds > gapStart) {
+                    const startProgress = gapStart / totalSeconds;
+                    const fullGapEndProgress = gapEnd / totalSeconds;
+                    // We only draw up to the elapsed time within the gap
+                    const endProgress = Math.min(fullGapEndProgress, elapsedSeconds / totalSeconds);
 
-                if (endProgress > startProgress && elapsedSeconds > gapStart) {
-                    this.drawGradientSegment(startProgress, endProgress, startColor, endColor);
+                    if (endProgress > startProgress) {
+                        // Pass the full gap boundaries for correct gradient calculation
+                        this.drawGradientSegment(
+                            startProgress,
+                            endProgress,
+                            startColor,
+                            endColor,
+                            startProgress,  // Full gap start
+                            fullGapEndProgress  // Full gap end
+                        );
+                    }
                 }
             }
 
@@ -212,13 +197,22 @@ class CanvasTimer {
         }
 
         // Draw gradient from last event to end if there's remaining time
-        if (lastEventEnd < totalSeconds && elapsedSeconds > lastEventEnd) {
+        if (false && lastEventEnd < totalSeconds && elapsedSeconds > lastEventEnd) {
             const lastEvent = sortedEvents[sortedEvents.length - 1];
             const startProgress = lastEventEnd / totalSeconds;
-            const endProgress = Math.min(1, elapsedSeconds / totalSeconds);
+            const fullEndProgress = 1; // Full timer duration
+            const endProgress = Math.min(fullEndProgress, elapsedSeconds / totalSeconds);
 
             if (endProgress > startProgress) {
-                this.drawGradientSegment(startProgress, endProgress, lastEvent.color, defaultColor);
+                // Pass the full gap boundaries for correct gradient calculation
+                this.drawGradientSegment(
+                    startProgress,
+                    endProgress,
+                    lastEvent.color,
+                    defaultColor,
+                    startProgress,  // Full gap start
+                    fullEndProgress  // Full gap end
+                );
             }
         }
     }
@@ -239,7 +233,7 @@ class CanvasTimer {
     }
 
     // Draw a gradient segment using canvas gradient
-    drawGradientSegment(startProgress, endProgress, startColor, endColor) {
+    drawGradientSegment(startProgress, endProgress, startColor, endColor, fullGapStart = null, fullGapEnd = null) {
         if (endProgress <= startProgress) return;
 
         const startAngle = -Math.PI / 2 + (2 * Math.PI * startProgress);
@@ -247,7 +241,15 @@ class CanvasTimer {
 
         // For small segments, use simple color interpolation
         if (endProgress - startProgress < 0.02) { // Less than 2% of the circle
-            const midColor = this.getGradientColor(startColor, endColor, 0.5);
+            // Calculate the correct color position within the full gap
+            let colorProgress = 0.5; // Default to middle
+            if (fullGapStart !== null && fullGapEnd !== null) {
+                const midProgress = (startProgress + endProgress) / 2;
+                colorProgress = (midProgress - fullGapStart) / (fullGapEnd - fullGapStart);
+                colorProgress = Math.max(0, Math.min(1, colorProgress));
+            }
+
+            const midColor = this.getGradientColor(startColor, endColor, colorProgress);
             this.ctx.beginPath();
             this.ctx.arc(this.centerX, this.centerY, this.radius, startAngle, endAngle);
             this.ctx.strokeStyle = midColor;
@@ -266,12 +268,24 @@ class CanvasTimer {
 
         // Draw gradient by creating many small segments
         for (let i = 0; i < steps; i++) {
-            const progress = i / (steps - 1);
             const segmentStartAngle = startAngle + (angleStep * i);
             const segmentEndAngle = startAngle + (angleStep * (i + 1));
 
+            // Calculate progress within the full gap, not just the drawn segment
+            const currentSegmentProgress = startProgress + (endProgress - startProgress) * (i / (steps - 1));
+
+            let colorProgress;
+            if (fullGapStart !== null && fullGapEnd !== null) {
+                // Calculate position within the full gap
+                colorProgress = (currentSegmentProgress - fullGapStart) / (fullGapEnd - fullGapStart);
+                colorProgress = Math.max(0, Math.min(1, colorProgress));
+            } else {
+                // Fallback to progress within drawn segment
+                colorProgress = i / (steps - 1);
+            }
+
             // Calculate gradient color for this segment
-            const segmentColor = this.getGradientColor(startColor, endColor, progress);
+            const segmentColor = this.getGradientColor(startColor, endColor, colorProgress);
 
             this.ctx.beginPath();
             this.ctx.arc(this.centerX, this.centerY, this.radius, segmentStartAngle, segmentEndAngle);
@@ -316,12 +330,6 @@ class CanvasTimer {
         this.canvas.style.transform = 'scale(1)';
     }
 
-    // Update colors
-    setColors(background, tick) {
-        this.backgroundColor = background || '#f0f0f0';
-        this.tickColor = tick || '#333333';
-    }
-
     // Set progress color
     setProgressColor(color) {
         this.progressColor = color;
@@ -333,12 +341,12 @@ class CanvasTimer {
             // Use event color for progress and styling
             this.progressColor = eventColor;
             this.tickColor = this.darkenColor(eventColor, 0.3); // Darker for better contrast
-            this.backgroundColor = this.lightenColor(eventColor, 0.8); // Light background ring
+           // this.backgroundColor = this.lightenColor(eventColor, 0.8); // Light background ring
         } else {
             // Reset to neutral colors
             this.progressColor = '#ff4444';
             this.tickColor = '#333333';
-            this.backgroundColor = '#f0f0f0';
+           // this.backgroundColor = '#f0f0f0';
         }
 
         // Force a redraw with current progress
