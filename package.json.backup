@@ -13,20 +13,9 @@
     "format": "npx prettier --write '**/*.{js,html,css,json}'",
     "audit": "npx lighthouse http://localhost:3003 --output html --output-path ./lighthouse-report.html",
     "serve:dist": "npx http-server dist -p 3004 -c-1",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "ios:init": "ionic capacitor add ios",
-    "ios:build": "npm run build && ionic capacitor copy ios",
-    "ios:sync": "ionic capacitor sync ios",
-    "ios:run": "ionic capacitor run ios",
-    "ios:open": "ionic capacitor open ios",
-    "dev:ios": "ionic capacitor run ios --livereload --external"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "pwa",
-    "timer",
-    "productivity",
-    "javascript"
-  ],
+  "keywords": ["pwa", "timer", "productivity", "javascript"],
   "author": "Developer",
   "license": "MIT",
   "devDependencies": {

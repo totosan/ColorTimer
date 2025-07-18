@@ -1,5 +1,5 @@
 {
-  "name": "Color Timer PWA Development",
+  "name": "Color Timer iOS Development",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
 
   "features": {
@@ -27,7 +27,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        // Web Development
+        // Web Development (existing)
         "ms-vscode.vscode-json",
         "bradlc.vscode-tailwindcss",
         "formulahendry.auto-rename-tag",
@@ -39,6 +39,11 @@
         "formulahendry.auto-close-tag",
         "christian-kohler.path-intellisense",
         "ms-vscode.live-server",
+
+        // Mobile Development
+        "ionic.ionic",
+        "ms-vscode.vscode-cordova",
+        "ms-vscode.vscode-swift",
 
         // PWA Development
         "ms-vscode.vscode-json",
@@ -62,6 +67,11 @@
         "gruntfuggly.todo-tree",
         "usernamehw.errorlens",
         "ms-vscode.hexeditor",
+
+        // iOS Development
+        "ms-vscode.vscode-xml",
+        "redhat.vscode-xml",
+        "ms-vscode.vscode-plist",
 
         // Icons and Themes
         "pkief.material-icon-theme",
@@ -89,12 +99,13 @@
         "javascript.validate.enable": true,
         "emmet.includeLanguages": {
           "javascript": "javascriptreact"
-        }
+        },
+        "ionic.capacitor.platform": "ios"
       }
     }
   },
 
-  "forwardPorts": [3003, 8000, 8080, 5000, 5500],
+  "forwardPorts": [3003, 8000, 8080, 5000, 5500, 8100],
   "portsAttributes": {
     "3003": {
       "label": "Development Server",
@@ -115,16 +126,20 @@
     "5500": {
       "label": "Live Server",
       "onAutoForward": "notify"
+    },
+    "8100": {
+      "label": "Ionic Dev Server",
+      "onAutoForward": "notify"
     }
   },
 
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "postStartCommand": "echo '🎨 Color Timer PWA Development Environment Ready!'",
+  "postCreateCommand": "bash .devcontainer/ios-dev/post-create.sh",
+  "postStartCommand": "echo '📱 Color Timer iOS Development Environment Ready!'",
 
   "remoteUser": "vscode",
 
   "mounts": [
-    "source=colortimer-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=colortimer-ios-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
     "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
   ]
 }
